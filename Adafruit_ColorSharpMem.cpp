@@ -7,20 +7,13 @@ This code is not optimised at all! It's barely more than a proof of concept.
 
 If you need something really fast:
 
-* SPI peripheral and DMA should be used
-* 32-bit accesses should be used where possible
-* Rotation should be done per object, not per pixel
-
-This library is a work in progress! Bugs exist:
-
-* Text not drawing properly
-* Line rendering bug
-
-All resulting from a positioning error?
+ * SPI peripheral and DMA should be used
+ * 32-bit accesses should be used where possible
+ * Rotation should be done per object, not per pixel
 
 It can be made more robust too:
 
-* Optimise timing, remove hacky volatile delays that depend on clock speed
+ * Optimise timing, remove hacky volatile delays that depend on clock speed
 
 
 The original readme follows:
@@ -74,7 +67,7 @@ uint8_t sharpmem_buffer[(SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2];
 /* CONSTRUCTORS  */
 /* ************* */
 Adafruit_SharpMem::Adafruit_SharpMem(uint8_t clk, uint8_t mosi, uint8_t ss) :
-								Adafruit_GFX(SHARPMEM_LCDWIDTH, SHARPMEM_LCDHEIGHT) {
+										Adafruit_GFX(SHARPMEM_LCDWIDTH, SHARPMEM_LCDHEIGHT) {
 	_clk = clk;
 	_mosi = mosi;
 	_ss = ss;
@@ -117,13 +110,13 @@ void Adafruit_SharpMem::sendbyte(uint8_t data)
 	{
 
 		d++;d++;d++;
+
 		//Make sure clock starts low
 		*clkport &= ~clkpinmask;
 		if (data & 0x80)
 			*dataport |=  datapinmask;
 		else
 			*dataport &= ~datapinmask;
-
 
 		d++;d++;d++;
 
@@ -132,9 +125,7 @@ void Adafruit_SharpMem::sendbyte(uint8_t data)
 		data <<= 1;
 	}
 
-
 	d++;d++;d++;
-
 
 	//Make sure clock ends low
 	*clkport &= ~clkpinmask;
@@ -147,7 +138,7 @@ void Adafruit_SharpMem::sendBit(uint8_t data, uint8_t mask) {
 	//Make sure clock starts low
 	*clkport &= ~clkpinmask;
 
-	//Delay a tiny time
+
 	d++;d++;d++;
 
 	if (data & mask)
@@ -165,20 +156,16 @@ void Adafruit_SharpMem::sendBit(uint8_t data, uint8_t mask) {
 void Adafruit_SharpMem::sendPixelPair(uint8_t data)
 {
 
-
 	sendBit(data, 0x01);
 	sendBit(data, 0x02);
 	sendBit(data, 0x04);
-
 
 	sendBit(data, 0x10);
 	sendBit(data, 0x20);
 	sendBit(data, 0x40);
 
-
 	//Make sure clock ends low
 	*clkport &= ~clkpinmask;
-
 
 }
 
@@ -190,7 +177,6 @@ void Adafruit_SharpMem::sendbyteLSB(uint8_t data)
 	for (i=0; i<8; i++)
 	{
 
-
 		d++;d++;d++;
 
 		//Make sure clock starts low
@@ -201,15 +187,13 @@ void Adafruit_SharpMem::sendbyteLSB(uint8_t data)
 		else
 			*dataport &= ~datapinmask;
 
-
 		d++;d++;d++;
 
 		//Clock is active high
 		*clkport |=  clkpinmask;
 		data >>= 1;
+
 	}
-
-
 
 	d++;d++;d++;
 
@@ -238,12 +222,10 @@ void Adafruit_SharpMem::sendbyteLSB(uint8_t data)
 /**************************************************************************/
 void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color) 
 {
+
 	//Is the point out of range?
 	if((x < 0) || (x >= _width) || (y < 0) || (y >= _height)) return;
 
-	//TODO could you rotate the point out of the correct range? Yes?!
-
-	/*
 	switch(rotation) {
 	case 1:
 		swap(x, y);
@@ -258,13 +240,11 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 		y = HEIGHT - 1 - y;
 		break;
 	}
-	*/
-
 
 	//Mask off any additional color bits. No blending at the moment.
 	color = color & 0b00000111;
 
-
+	//Pack pixels in pairs
 	if((x&1)) {
 		//Wipe relevant bits
 		sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] &= ~(0b01110000);
@@ -276,6 +256,7 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 		//Set relevant bits
 		sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] |= (uint8_t) color;
 	}
+
 }
 
 /**************************************************************************/
@@ -292,10 +273,11 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 /**************************************************************************/
 uint8_t Adafruit_SharpMem::getPixel(uint16_t x, uint16_t y)
 {
+
 	if(x&1)
 		return (sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] & 0b01110000) >> 4;
 	else
-		return sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] & 0b111;
+		return (sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] & 0b00000111);
 
 }
 
@@ -306,23 +288,27 @@ uint8_t Adafruit_SharpMem::getPixel(uint16_t x, uint16_t y)
 /**************************************************************************/
 void Adafruit_SharpMem::clearDisplay() 
 {
+
 	//Clear framebuffer
 	memset(sharpmem_buffer, (White | (White << 4)), (SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2);
 
 	//Activate the device
 	digitalWrite(_ss, HIGH);
+
 	//Delay tsSCS
 	delayMicroseconds(3);
+
 	//Send the clear screen command rather than doing a HW refresh (quicker)
 	sendbyte(SHARPMEM_BIT_CLEAR);
 
-	//Send 16 dummy bytes (data sheet stipulates at least 13)
+	//Send 16 dummy bits (data sheet stipulates at least 13)
 	sendbyte(0x00);
 	sendbyte(0x00);
 
 	//Delay thSCS
 	delayMicroseconds(1);
 
+	//deactivate the device
 	digitalWrite(_ss, LOW);
 
 	//Delay twSCSL
@@ -337,7 +323,7 @@ void Adafruit_SharpMem::clearDisplay()
 /**************************************************************************/
 void Adafruit_SharpMem::refresh(void) 
 {
-	uint16_t y, x, currentLine, oldLine;
+	uint16_t y, xpair, currentLine, oldLine;
 
 	//Activate the device
 	digitalWrite(_ss, HIGH);
@@ -352,28 +338,36 @@ void Adafruit_SharpMem::refresh(void)
 	currentLine = 1;
 	sendbyteLSB(currentLine);
 
-	//Send image buffer
+	//For each horizontal line of the image
 	for (y=0; y < SHARPMEM_LCDHEIGHT; y++)
 	{
-		for(x=0; x < SHARPMEM_LCDWIDTH/2; x++) {
-			sendPixelPair(sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x)/2]);
-			//sendPixelPair(x<32?(Green|Green<<4):(Red|Red<<4));
+
+		//Send each pixel pair
+		for(xpair=0; xpair < SHARPMEM_LCDWIDTH/2; xpair++)
+		{
+			sendPixelPair(sharpmem_buffer[((y*SHARPMEM_LCDWIDTH)/2) + xpair]);
 		}
+
 		currentLine++;
-		sendbyteLSB(0x00); //Dummy bytes to end a line
+
+		//Dummy byte to end a line
+		sendbyteLSB(0x00);
+
+		//If there are more lines to follow, send the next line number.
 		if (currentLine <= SHARPMEM_LCDHEIGHT)
 		{
 			sendbyteLSB(currentLine);
 		}
+
 	}
 
-	//Send another trailing 8 dummy bits for the final line, making a total of 16 dummy bytes at end of frame.
+	//Send another trailing 8 dummy bits for the final line, making a total of 16 dummy bits at end of frame
 	sendbyte(0x00);
-
 
 	//Delay thSCS
 	delayMicroseconds(1);
 
+	//Deactivate the device
 	digitalWrite(_ss, LOW);
 
 	//Assume nothing will happen to the screen for another microsecond (twSCSL)
