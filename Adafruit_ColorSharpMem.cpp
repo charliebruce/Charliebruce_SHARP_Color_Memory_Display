@@ -79,7 +79,7 @@ Adafruit_SharpMem::Adafruit_SharpMem(uint8_t clk, uint8_t mosi, uint8_t ss) :
 	_mosi = mosi;
 	_ss = ss;
 
-	// Set pin state before direction to make sure they start this way (no glitching)
+	//Set pin state before direction to make sure they start this way (no glitching)
 	digitalWrite(_ss, HIGH);
 	digitalWrite(_clk, LOW);
 	digitalWrite(_mosi, HIGH);
@@ -112,12 +112,12 @@ void Adafruit_SharpMem::sendbyte(uint8_t data)
 {
 	uint8_t i = 0;
 
-	// LCD expects LSB first
+	//LCD expects LSB first
 	for (i=0; i<8; i++)
 	{
 
 		d++;d++;d++;
-		// Make sure clock starts low
+		//Make sure clock starts low
 		*clkport &= ~clkpinmask;
 		if (data & 0x80)
 			*dataport |=  datapinmask;
@@ -127,7 +127,7 @@ void Adafruit_SharpMem::sendbyte(uint8_t data)
 
 		d++;d++;d++;
 
-		// Clock is active high
+		//Clock is active high
 		*clkport |=  clkpinmask;
 		data <<= 1;
 	}
@@ -136,7 +136,7 @@ void Adafruit_SharpMem::sendbyte(uint8_t data)
 	d++;d++;d++;
 
 
-	// Make sure clock ends low
+	//Make sure clock ends low
 	*clkport &= ~clkpinmask;
 }
 
@@ -144,7 +144,7 @@ void Adafruit_SharpMem::sendbyte(uint8_t data)
 
 void Adafruit_SharpMem::sendBit(uint8_t data, uint8_t mask) {
 
-	// Make sure clock starts low
+	//Make sure clock starts low
 	*clkport &= ~clkpinmask;
 
 	//Delay a tiny time
@@ -157,7 +157,7 @@ void Adafruit_SharpMem::sendBit(uint8_t data, uint8_t mask) {
 
 	d++;d++;d++;
 
-	// Clock is active high
+	//Clock is active high
 	*clkport |=  clkpinmask;
 
 }
@@ -176,7 +176,7 @@ void Adafruit_SharpMem::sendPixelPair(uint8_t data)
 	sendBit(data, 0x40);
 
 
-	// Make sure clock ends low
+	//Make sure clock ends low
 	*clkport &= ~clkpinmask;
 
 
@@ -186,14 +186,14 @@ void Adafruit_SharpMem::sendbyteLSB(uint8_t data)
 {
 	uint8_t i = 0;
 
-	// LCD expects LSB first
+	//LCD expects LSB first
 	for (i=0; i<8; i++)
 	{
 
 
 		d++;d++;d++;
 
-		// Make sure clock starts low
+		//Make sure clock starts low
 		*clkport &= ~clkpinmask;
 
 		if (data & 0x01)
@@ -204,7 +204,7 @@ void Adafruit_SharpMem::sendbyteLSB(uint8_t data)
 
 		d++;d++;d++;
 
-		// Clock is active high
+		//Clock is active high
 		*clkport |=  clkpinmask;
 		data >>= 1;
 	}
@@ -213,7 +213,7 @@ void Adafruit_SharpMem::sendbyteLSB(uint8_t data)
 
 	d++;d++;d++;
 
-	// Make sure clock ends low
+	//Make sure clock ends low
 	*clkport &= ~clkpinmask;
 
 }
@@ -226,12 +226,14 @@ void Adafruit_SharpMem::sendbyteLSB(uint8_t data)
 
 /**************************************************************************/
 /*! 
-    @brief Draws a single pixel in image buffer
+    @brief Write a single pixel to the image buffer
 
     @param[in]  x
                 The x position (0 based)
     @param[in]  y
                 The y position (0 based)
+	@param[in]	color
+				The pixel color to use
  */
 /**************************************************************************/
 void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color) 
@@ -311,7 +313,7 @@ void Adafruit_SharpMem::clearDisplay()
 	digitalWrite(_ss, HIGH);
 	//Delay tsSCS
 	delayMicroseconds(3);
-	// Send the clear screen command rather than doing a HW refresh (quicker)
+	//Send the clear screen command rather than doing a HW refresh (quicker)
 	sendbyte(SHARPMEM_BIT_CLEAR);
 
 	//Send 16 dummy bytes (data sheet stipulates at least 13)
@@ -343,14 +345,14 @@ void Adafruit_SharpMem::refresh(void)
 	//Delay tsSCS
 	delayMicroseconds(3);
 
-	// Send the write command
+	//Send the write command
 	sendbyte(SHARPMEM_BIT_WRITECMD);
 
-	// Send the address for line 1
+	//Send the address for line 1
 	currentLine = 1;
 	sendbyteLSB(currentLine);
 
-	// Send image buffer
+	//Send image buffer
 	for (y=0; y < SHARPMEM_LCDHEIGHT; y++)
 	{
 		for(x=0; x < SHARPMEM_LCDWIDTH/2; x++) {
@@ -365,7 +367,7 @@ void Adafruit_SharpMem::refresh(void)
 		}
 	}
 
-	// Send another trailing 8 dummy bits for the final line, making a total of 16 dummy bytes at end of frame.
+	//Send another trailing 8 dummy bits for the final line, making a total of 16 dummy bytes at end of frame.
 	sendbyte(0x00);
 
 
