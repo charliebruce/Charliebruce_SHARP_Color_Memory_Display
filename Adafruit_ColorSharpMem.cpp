@@ -280,14 +280,14 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 
 /**************************************************************************/
 /*! 
-    @brief Gets the value (1 or 0) of the specified pixel from the buffer
+    @brief Gets the value of the specified pixel from the buffer
 
     @param[in]  x
                 The x position (0 based)
     @param[in]  y
                 The y position (0 based)
 
-    @return     The pixel's colour value.
+    @return     The pixel's colour value, as defined in SHARPMEM_COLORS.
  */
 /**************************************************************************/
 uint8_t Adafruit_SharpMem::getPixel(uint16_t x, uint16_t y)
