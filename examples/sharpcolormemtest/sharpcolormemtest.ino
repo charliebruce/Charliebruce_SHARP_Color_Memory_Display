@@ -1,4 +1,12 @@
 /*********************************************************************
+This is an example sketch for the Color SHARP Memory Display.
+It is based on Adafruit's library for the monochrome displays, which
+can be found at https://github.com/adafruit/Adafruit_SHARP_Memory_Display
+
+
+
+The original comment follows:
+
 This is an example sketch for our Monochrome SHARP Memory Displays
 
   Pick one up today in the adafruit shop!
@@ -137,7 +145,7 @@ void testfillrect(void) {
   uint8_t color = 1;
   for (uint8_t i=0; i<display.height()/2; i+=3) {
     // alternate colors
-    display.fillRect(i, i, display.width()-i*2, display.height()-i*2, color%2);
+    display.fillRect(i, i, display.width()-i*2, display.height()-i*2, color&7);
     display.refresh();
     color++;
   }
@@ -190,33 +198,33 @@ void testdrawrect(void) {
 
 void testdrawline() {  
   for (uint8_t i=0; i<display.width(); i+=4) {
-    display.drawLine(0, 0, i, display.height()-1, Black);
+    display.drawLine(0, 0, i, display.height()-1, Red);
     display.refresh();
   }
   for (uint8_t i=0; i<display.height(); i+=4) {
-    display.drawLine(0, 0, display.width()-1, i, Black);
+    display.drawLine(0, 0, display.width()-1, i, Green);
     display.refresh();
   }
   delay(250);
   
   display.clearDisplay();
   for (uint8_t i=0; i<display.width(); i+=4) {
-    display.drawLine(0, display.height()-1, i, 0, Black);
+    display.drawLine(0, display.height()-1, i, 0, Blue);
     display.refresh();
   }
   for (int8_t i=display.height()-1; i>=0; i-=4) {
-    display.drawLine(0, display.height()-1, display.width()-1, i, Black);
+    display.drawLine(0, display.height()-1, display.width()-1, i, Yellow);
     display.refresh();
   }
   delay(250);
   
   display.clearDisplay();
   for (int8_t i=display.width()-1; i>=0; i-=4) {
-    display.drawLine(display.width()-1, display.height()-1, i, 0, Black);
+    display.drawLine(display.width()-1, display.height()-1, i, 0, Cyan);
     display.refresh();
   }
   for (int8_t i=display.height()-1; i>=0; i-=4) {
-    display.drawLine(display.width()-1, display.height()-1, 0, i, Black);
+    display.drawLine(display.width()-1, display.height()-1, 0, i, Magenta);
     display.refresh();
   }
   delay(250);
