@@ -165,13 +165,15 @@ void Adafruit_SharpMem::sendBit(uint8_t data, uint8_t mask) {
 void Adafruit_SharpMem::sendPixelPair(uint8_t data)
 {
 
-	sendBit(data, 0x10);
-	sendBit(data, 0x20);
-	sendBit(data, 0x40);
 
 	sendBit(data, 0x01);
 	sendBit(data, 0x02);
 	sendBit(data, 0x04);
+
+
+	sendBit(data, 0x10);
+	sendBit(data, 0x20);
+	sendBit(data, 0x40);
 
 
 	// Make sure clock ends low
@@ -237,6 +239,9 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 	//Is the point out of range?
 	if((x < 0) || (x >= _width) || (y < 0) || (y >= _height)) return;
 
+	//TODO could you rotate the point out of the correct range? Yes?!
+
+	/*
 	switch(rotation) {
 	case 1:
 		swap(x, y);
@@ -251,6 +256,7 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 		y = HEIGHT - 1 - y;
 		break;
 	}
+	*/
 
 
 	//Mask off any additional colour bits. No blending at the moment.
