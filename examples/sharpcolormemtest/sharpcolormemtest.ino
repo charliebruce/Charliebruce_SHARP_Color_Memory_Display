@@ -26,9 +26,6 @@ All text above, and the splash screen must be included in any redistribution
 
 Adafruit_SharpMem display(SCK, MOSI, SS);
 
-#define BLACK 0
-#define WHITE 1
-
 void setup(void) 
 {
   Serial.begin(9600);
@@ -39,7 +36,7 @@ void setup(void)
   display.clearDisplay();
 
   // draw a single pixel
-  display.drawPixel(10, 10, BLACK);
+  display.drawPixel(10, 10, Black);
   display.refresh();
   delay(500);
   display.clearDisplay();
@@ -61,7 +58,7 @@ void setup(void)
   display.clearDisplay();
 
   // draw a circle, 10 pixel radius
-  display.fillCircle(display.width()/2, display.height()/2, 10, BLACK);
+  display.fillCircle(display.width()/2, display.height()/2, 10, Black);
   display.refresh();
   delay(500);
   display.clearDisplay();
@@ -94,13 +91,13 @@ void setup(void)
 
   // text display tests
   display.setTextSize(1);
-  display.setTextColor(BLACK);
+  display.setTextColor(Blue);
   display.setCursor(0,0);
   display.println("Hello, world!");
-  display.setTextColor(WHITE, BLACK); // 'inverted' text
+  display.setTextColor(Red, Green);
   display.println(3.141592);
   display.setTextSize(2);
-  display.setTextColor(BLACK);
+  display.setTextColor(Yellow);
   display.print("0x"); display.println(0xDEADBEEF, HEX);
   display.refresh();
   delay(2000);
@@ -117,7 +114,7 @@ void loop(void)
 
 void testdrawchar(void) {
   display.setTextSize(1);
-  display.setTextColor(BLACK);
+  display.setTextColor(Black);
   display.setCursor(0,0);
 
   for (uint8_t i=0; i < 168; i++) {
@@ -131,7 +128,7 @@ void testdrawchar(void) {
 
 void testdrawcircle(void) {
   for (uint8_t i=0; i<display.height(); i+=2) {
-    display.drawCircle(display.width()/2-5, display.height()/2-5, i, BLACK);
+    display.drawCircle(display.width()/2-5, display.height()/2-5, i, Black);
     display.refresh();
   }
 }
@@ -150,87 +147,87 @@ void testdrawtriangle(void) {
   for (uint16_t i=0; i<min(display.width(),display.height())/2; i+=5) {
     display.drawTriangle(display.width()/2, display.height()/2-i,
                      display.width()/2-i, display.height()/2+i,
-                     display.width()/2+i, display.height()/2+i, BLACK);
+                     display.width()/2+i, display.height()/2+i, Black);
     display.refresh();
   }
 }
 
 void testfilltriangle(void) {
-  uint8_t color = BLACK;
+  uint8_t color = Black;
   for (int16_t i=min(display.width(),display.height())/2; i>0; i-=5) {
     display.fillTriangle(display.width()/2, display.height()/2-i,
                      display.width()/2-i, display.height()/2+i,
                      display.width()/2+i, display.height()/2+i, color);
-    if (color == WHITE) color = BLACK;
-    else color = WHITE;
+    if (color == White) color = Black;
+    else color = White;
     display.refresh();
   }
 }
 
 void testdrawroundrect(void) {
   for (uint8_t i=0; i<display.height()/4; i+=2) {
-    display.drawRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, BLACK);
+    display.drawRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, Black);
     display.refresh();
   }
 }
 
 void testfillroundrect(void) {
-  uint8_t color = BLACK;
+  uint8_t color = Black;
   for (uint8_t i=0; i<display.height()/4; i+=2) {
     display.fillRoundRect(i, i, display.width()-2*i, display.height()-2*i, display.height()/4, color);
-    if (color == WHITE) color = BLACK;
-    else color = WHITE;
+    if (color == White) color = Black;
+    else color = White;
     display.refresh();
   }
 }
    
 void testdrawrect(void) {
   for (uint8_t i=0; i<display.height()/2; i+=2) {
-    display.drawRect(i, i, display.width()-2*i, display.height()-2*i, BLACK);
+    display.drawRect(i, i, display.width()-2*i, display.height()-2*i, Black);
     display.refresh();
   }
 }
 
 void testdrawline() {  
   for (uint8_t i=0; i<display.width(); i+=4) {
-    display.drawLine(0, 0, i, display.height()-1, BLACK);
+    display.drawLine(0, 0, i, display.height()-1, Black);
     display.refresh();
   }
   for (uint8_t i=0; i<display.height(); i+=4) {
-    display.drawLine(0, 0, display.width()-1, i, BLACK);
+    display.drawLine(0, 0, display.width()-1, i, Black);
     display.refresh();
   }
   delay(250);
   
   display.clearDisplay();
   for (uint8_t i=0; i<display.width(); i+=4) {
-    display.drawLine(0, display.height()-1, i, 0, BLACK);
+    display.drawLine(0, display.height()-1, i, 0, Black);
     display.refresh();
   }
   for (int8_t i=display.height()-1; i>=0; i-=4) {
-    display.drawLine(0, display.height()-1, display.width()-1, i, BLACK);
+    display.drawLine(0, display.height()-1, display.width()-1, i, Black);
     display.refresh();
   }
   delay(250);
   
   display.clearDisplay();
   for (int8_t i=display.width()-1; i>=0; i-=4) {
-    display.drawLine(display.width()-1, display.height()-1, i, 0, BLACK);
+    display.drawLine(display.width()-1, display.height()-1, i, 0, Black);
     display.refresh();
   }
   for (int8_t i=display.height()-1; i>=0; i-=4) {
-    display.drawLine(display.width()-1, display.height()-1, 0, i, BLACK);
+    display.drawLine(display.width()-1, display.height()-1, 0, i, Black);
     display.refresh();
   }
   delay(250);
 
   display.clearDisplay();
   for (uint8_t i=0; i<display.height(); i+=4) {
-    display.drawLine(display.width()-1, 0, 0, i, BLACK);
+    display.drawLine(display.width()-1, 0, 0, i, Black);
     display.refresh();
   }
   for (uint8_t i=0; i<display.width(); i+=4) {
-    display.drawLine(display.width()-1, 0, i, display.height()-1, BLACK); 
+    display.drawLine(display.width()-1, 0, i, display.height()-1, Black); 
     display.refresh();
   }
   delay(250);
