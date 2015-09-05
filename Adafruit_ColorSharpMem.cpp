@@ -1,6 +1,6 @@
 /*********************************************************************
-This is a port of the Adafruit Arduino library for Colour SHARP Memory Displays
-This library supports multi-colour Sharp LCDs and is designed for the Arduino Due.
+This is a port of the Adafruit Arduino library for Color SHARP Memory Displays
+This library supports multi-color Sharp LCDs and is designed for the Arduino Due.
 vcom-related stuff has been removed, I didn't understand what it was doing.
 
 This code is not optimised at all! It's barely more than a proof of concept.
@@ -261,7 +261,7 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 	*/
 
 
-	//Mask off any additional colour bits. No blending at the moment.
+	//Mask off any additional color bits. No blending at the moment.
 	color = color & 0b00000111;
 
 
@@ -287,7 +287,7 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
     @param[in]  y
                 The y position (0 based)
 
-    @return     The pixel's colour value, as defined in SHARPMEM_COLORS.
+    @return     The pixel's color value, as defined in SHARPMEM_COLORS.
  */
 /**************************************************************************/
 uint8_t Adafruit_SharpMem::getPixel(uint16_t x, uint16_t y)
