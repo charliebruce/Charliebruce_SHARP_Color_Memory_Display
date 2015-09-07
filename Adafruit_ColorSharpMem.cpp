@@ -5,11 +5,12 @@ vcom-related stuff has been removed, I didn't understand what it was doing.
 
 This code is not optimised at all! It's barely more than a proof of concept.
 
-If you need something really fast:
+If you need something to run really fast:
 
  * SPI peripheral and DMA should be used
  * 32-bit accesses should be used where possible
  * Rotation should be done per object, not per pixel
+ * Fast horizontal lines should be implemented
 
 It can be made more robust too:
 
