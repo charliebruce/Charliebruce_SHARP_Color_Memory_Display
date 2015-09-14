@@ -67,20 +67,23 @@ uint8_t sharpmem_buffer[(SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2];
 /* ************* */
 /* CONSTRUCTORS  */
 /* ************* */
-Adafruit_SharpMem::Adafruit_SharpMem(uint8_t clk, uint8_t mosi, uint8_t ss) :
+Adafruit_SharpMem::Adafruit_SharpMem(uint8_t clk, uint8_t mosi, uint8_t ss, uint8_t ecin) :
 										Adafruit_GFX(SHARPMEM_LCDWIDTH, SHARPMEM_LCDHEIGHT) {
 	_clk = clk;
 	_mosi = mosi;
 	_ss = ss;
+	_ecin = ecin;
 
 	//Set pin state before direction to make sure they start this way (no glitching)
 	digitalWrite(_ss, HIGH);
 	digitalWrite(_clk, LOW);
+	digitalWrite(_ecin, LOW);
 	digitalWrite(_mosi, HIGH);
 
 	pinMode(_ss, OUTPUT);
 	pinMode(_clk, OUTPUT);
 	pinMode(_mosi, OUTPUT);
+	pinMode(_ecin, OUTPUT);
 
 	clkport     = portOutputRegister(digitalPinToPort(_clk));
 	clkpinmask  = digitalPinToBitMask(_clk);
@@ -282,6 +285,20 @@ uint8_t Adafruit_SharpMem::getPixel(uint16_t x, uint16_t y)
 
 }
 
+
+/*
+ * Prevent problems with charge buildup
+ * Call on a timer interrupt at ~50Hz for best contrast.
+ */
+void Adafruit_SharpMem::toggleEcHw(void) {
+
+	digitalWrite(_ecin, HIGH);
+	delayMicroseconds(3); //Min 2uS
+	digitalWrite(_ecin, LOW);
+
+
+}
+
 /**************************************************************************/
 /*! 
     @brief Clears the screen
@@ -300,10 +317,10 @@ void Adafruit_SharpMem::clearDisplay()
 	delayMicroseconds(3);
 
 	//Send the clear screen command rather than doing a HW refresh (quicker)
+	//followed by 5 dummy bytes
 	sendbyte(SHARPMEM_BIT_CLEAR);
 
-	//Send 16 dummy bits (data sheet stipulates at least 13)
-	sendbyte(0x00);
+	//Send 8 additional dummy bits
 	sendbyte(0x00);
 
 	//Delay thSCS
