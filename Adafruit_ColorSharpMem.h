@@ -53,7 +53,8 @@ public:
 	void clearDisplay();
 	void refresh(void);
 	void toggleEcHw(void);
-
+	void flip(void);
+	uint8_t disp, back;
 private:
 	uint8_t _ss, _clk, _mosi, _ecin;
 	volatile uint32_t *dataport, *clkport; //For 8-bit arduinos, this can (should) be a volatile uint8_t instead.

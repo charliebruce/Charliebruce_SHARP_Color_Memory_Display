@@ -62,13 +62,14 @@ All text above, and the splash screen must be included in any redistribution
 volatile uint32_t d = 0;
 
 //Pack data 2 pixels per byte - eg 0bX111X000 is a white followed by a black. (X is ignored)
-uint8_t sharpmem_buffer[(SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2];
+uint8_t sharpmem_buffer1[(SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2];
+uint8_t sharpmem_buffer2[(SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2];
 
 /* ************* */
 /* CONSTRUCTORS  */
 /* ************* */
 Adafruit_SharpMem::Adafruit_SharpMem(uint8_t clk, uint8_t mosi, uint8_t ss, uint8_t ecin) :
-										Adafruit_GFX(SHARPMEM_LCDWIDTH, SHARPMEM_LCDHEIGHT) {
+												Adafruit_GFX(SHARPMEM_LCDWIDTH, SHARPMEM_LCDHEIGHT) {
 	_clk = clk;
 	_mosi = mosi;
 	_ss = ss;
@@ -90,10 +91,18 @@ Adafruit_SharpMem::Adafruit_SharpMem(uint8_t clk, uint8_t mosi, uint8_t ss, uint
 	dataport    = portOutputRegister(digitalPinToPort(_mosi));
 	datapinmask = digitalPinToBitMask(_mosi);
 
+	disp = 0;
+	back = 1;
 }
 
 void Adafruit_SharpMem::begin() {
 	setRotation(2);
+}
+
+void Adafruit_SharpMem::flip(void) {
+	disp = !disp;
+	back = !back;
+	refresh();
 }
 
 /* *************** */
@@ -250,15 +259,32 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 
 	//Pack pixels in pairs
 	if((x&1)) {
-		//Wipe relevant bits
-		sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] &= ~(0b01110000);
-		//Set relevant bits
-		sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] |= (uint8_t) (color << 4);
+		if(back) {
+			//Wipe relevant bits
+			sharpmem_buffer1[(y*SHARPMEM_LCDWIDTH + x) / 2] &= ~(0b01110000);
+			//Set relevant bits
+			sharpmem_buffer1[(y*SHARPMEM_LCDWIDTH + x) / 2] |= (uint8_t) (color << 4);
+		} else {
+			//Wipe relevant bits
+			sharpmem_buffer2[(y*SHARPMEM_LCDWIDTH + x) / 2] &= ~(0b01110000);
+			//Set relevant bits
+			sharpmem_buffer2[(y*SHARPMEM_LCDWIDTH + x) / 2] |= (uint8_t) (color << 4);
+		}
+
+
 	} else {
-		//Wipe relevant bits
-		sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] &= ~(0b00000111);
-		//Set relevant bits
-		sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] |= (uint8_t) color;
+		if(back) {
+			//Wipe relevant bits
+			sharpmem_buffer1[(y*SHARPMEM_LCDWIDTH + x) / 2] &= ~(0b00000111);
+			//Set relevant bits
+			sharpmem_buffer1[(y*SHARPMEM_LCDWIDTH + x) / 2] |= (uint8_t) color;
+		} else {
+			//Wipe relevant bits
+			sharpmem_buffer2[(y*SHARPMEM_LCDWIDTH + x) / 2] &= ~(0b00000111);
+			//Set relevant bits
+			sharpmem_buffer2[(y*SHARPMEM_LCDWIDTH + x) / 2] |= (uint8_t) color;
+		}
+
 	}
 
 }
@@ -278,10 +304,12 @@ void Adafruit_SharpMem::drawPixel(int16_t x, int16_t y, uint16_t color)
 uint8_t Adafruit_SharpMem::getPixel(uint16_t x, uint16_t y)
 {
 
-	if(x&1)
-		return (sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] & 0b01110000) >> 4;
-	else
-		return (sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] & 0b00000111);
+	return 0;
+
+	//if(x&1)
+	//	return (sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] & 0b01110000) >> 4;
+	//else
+	//	return (sharpmem_buffer[(y*SHARPMEM_LCDWIDTH + x) / 2] & 0b00000111);
 
 }
 
@@ -308,7 +336,8 @@ void Adafruit_SharpMem::clearDisplay()
 {
 
 	//Clear framebuffer
-	memset(sharpmem_buffer, (White | (White << 4)), (SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2);
+	memset(sharpmem_buffer1, (White | (White << 4)), (SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2);
+	memset(sharpmem_buffer2, (White | (White << 4)), (SHARPMEM_LCDWIDTH * SHARPMEM_LCDHEIGHT) / 2);
 
 	//Activate the device
 	digitalWrite(_ss, HIGH);
@@ -363,7 +392,10 @@ void Adafruit_SharpMem::refresh(void)
 		//Send each pixel pair
 		for(xpair=0; xpair < SHARPMEM_LCDWIDTH/2; xpair++)
 		{
-			sendPixelPair(sharpmem_buffer[((y*SHARPMEM_LCDWIDTH)/2) + xpair]);
+			if(disp)
+				sendPixelPair(sharpmem_buffer1[((y*SHARPMEM_LCDWIDTH)/2) + xpair]);
+			else
+				sendPixelPair(sharpmem_buffer2[((y*SHARPMEM_LCDWIDTH)/2) + xpair]);
 		}
 
 		currentLine++;
